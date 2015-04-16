@@ -6,6 +6,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/etcinit/cerulean/app"
+	"github.com/etcinit/tumble/client"
 	"github.com/facebookgo/inject"
 	"github.com/jacobstr/confer"
 )
@@ -19,6 +20,10 @@ func main() {
 	config.ReadPaths("config/main.yml", "config/main.production.yml")
 	config.AutomaticEnv()
 
+	// For Chromabits, we want to include the Tumblr blog, so we will setup the
+	// client here so we can sue it later.
+	tumblr := client.NewWithKey(config.GetString("tumblr.key"))
+
 	// Next, we setup the dependency graph
 	// In this example, the graph won't have many nodes, but on more complex
 	// applications it becomes more useful.
@@ -26,6 +31,7 @@ func main() {
 	var cerulean app.Cerulean
 	g.Provide(
 		&inject.Object{Value: config},
+		&inject.Object{Value: tumblr},
 		&inject.Object{Value: &cerulean},
 	)
 	g.Populate()

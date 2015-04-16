@@ -7,3 +7,7 @@ database:
   username: "cerulean"
   password: "cerulean"
   name: "blog"
+tumblr:
+  hostname: "chromabits.tumblr.com"
+  key: "YOUR KEY GOES HERE"
+  postsPerPage: 5

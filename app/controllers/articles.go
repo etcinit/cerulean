@@ -18,10 +18,10 @@ type ArticlesController struct {
 
 // Register registers all the routes for this controller
 func (control *ArticlesController) Register(r *gin.RouterGroup) {
-	keywords := r.Group("/articles")
+	articles := r.Group("/articles")
 	{
-		keywords.GET("/", control.getIndex)
-		keywords.GET("/:id", control.getSingle)
+		articles.GET("/", control.getIndex)
+		articles.GET("/:id", control.getSingle)
 	}
 }
 
