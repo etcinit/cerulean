@@ -1,4 +1,4 @@
-![logo](http://i.imgur.com/US6TcEF.png)
+![logo](http://i.imgur.com/CziXopO.png)
 
 # cerulean
 
