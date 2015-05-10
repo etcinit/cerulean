@@ -20,13 +20,12 @@ func (s *Service) Paginate(page int) pagination.Pagination {
 	if page < 1 {
 		page = 1
 	}
-	page--
 
 	response, _ := s.Tumblr.Blog.GetPosts(
 		s.Config.GetString("tumblr.hostname"),
 		blog.GetPostsParameters{
 			Limit:  limit,
-			Offset: page * limit,
+			Offset: (page - 1) * limit,
 		},
 	)
 
