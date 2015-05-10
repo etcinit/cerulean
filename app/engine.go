@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	"github.com/etcinit/cerulean/app/controllers"
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +17,17 @@ type EngineService struct {
 // New creates a new instance of an API engine
 func (e *EngineService) New() *gin.Engine {
 	router := gin.Default()
+
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusOK)
+		} else {
+			c.Next()
+		}
+	})
 
 	e.Front.Register(router)
 

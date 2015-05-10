@@ -7,8 +7,12 @@ type FrontController struct{}
 
 // Register registers the route handlers for this controller
 func (f *FrontController) Register(r *gin.Engine) {
-	r.GET("/", f.getIndex)
-	r.GET("/healthcheck", f.getHealthCheck)
+	front := r.Group("/")
+	{
+		front.GET("/", f.getIndex)
+		front.GET("/healthcheck", f.getHealthCheck)
+	}
+
 	r.NotFound404(f.getNotFound)
 }
 

@@ -11,3 +11,7 @@ tumblr:
   hostname: "chromabits.tumblr.com"
   key: "YOUR KEY GOES HERE"
   postsPerPage: 5
+cache:
+  address: "localhost:6379"
+  password: ""
+  database: 0

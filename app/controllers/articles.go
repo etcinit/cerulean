@@ -3,10 +3,13 @@ package controllers
 import (
 	"strconv"
 
+	"github.com/etcinit/cerulean/app/cache"
 	"github.com/etcinit/cerulean/app/responses"
 	"github.com/etcinit/cerulean/database/models"
 	"github.com/etcinit/ohmygorm"
 	"github.com/etcinit/pagination"
+	"github.com/etcinit/speedbump"
+	"github.com/etcinit/speedbump/ginbump"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,14 +17,22 @@ import (
 type ArticlesController struct {
 	Connections *ohmygorm.ConnectionsService `inject:""`
 	Repository  *ohmygorm.RepositoryService  `inject:""`
+	Cache       *cache.RedisService          `inject:""`
 }
 
 // Register registers all the routes for this controller
 func (control *ArticlesController) Register(r *gin.RouterGroup) {
 	articles := r.Group("/articles")
 	{
+		articles.Use(ginbump.RateLimit(
+			control.Cache.Make(),
+			speedbump.PerMinuteHasher{},
+			100,
+		))
+
 		articles.GET("/", control.getIndex)
-		articles.GET("/:id", control.getSingle)
+		articles.GET("/title/:title", control.getSingleByTitle)
+		articles.GET("/id/:id", control.getSingle)
 	}
 }
 
@@ -37,7 +48,7 @@ func (control *ArticlesController) getIndex(c *gin.Context) {
 	paginator := pagination.NewFromRequest(totalItems, 3, c.Request)
 	pagination := paginator.ToPagination()
 
-	db.Limit(pagination.ItemsPerPage).Offset(pagination.Offset).Find(&articles)
+	db.Limit(pagination.ItemsPerPage).Offset(pagination.Offset).Order("created_at desc").Find(&articles)
 
 	responses.SendSingleResource(c, "articles", paginator.ToPaginationWithData(articles))
 }
@@ -52,6 +63,22 @@ func (control *ArticlesController) getSingle(c *gin.Context) {
 
 	var article models.Article
 	err = control.Repository.Find(&article, id)
+
+	if err != nil {
+		responses.SendResourceNotFound(c)
+		return
+	}
+
+	responses.SendSingleResource(c, "article", article)
+}
+
+func (control *ArticlesController) getSingleByTitle(c *gin.Context) {
+	db, _ := control.Connections.Make()
+
+	titleEncoded := c.Params.ByName("encoded")
+
+	var article models.Article
+	err := control.Repository.FirstOrFail(&article, db.Where(&models.Article{TitleEncoded: titleEncoded}))
 
 	if err != nil {
 		responses.SendResourceNotFound(c)
