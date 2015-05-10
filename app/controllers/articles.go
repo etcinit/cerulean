@@ -31,7 +31,7 @@ func (control *ArticlesController) Register(r *gin.RouterGroup) {
 		))
 
 		articles.GET("/", control.getIndex)
-		articles.GET("/title/:title", control.getSingleByTitle)
+		articles.GET("/title/:encoded", control.getSingleByTitle)
 		articles.GET("/id/:id", control.getSingle)
 	}
 }
@@ -80,7 +80,7 @@ func (control *ArticlesController) getSingleByTitle(c *gin.Context) {
 	var article models.Article
 	err := control.Repository.FirstOrFail(&article, db.Where(&models.Article{TitleEncoded: titleEncoded}))
 
-	if err != nil {
+	if err != nil || titleEncoded == "" {
 		responses.SendResourceNotFound(c)
 		return
 	}
