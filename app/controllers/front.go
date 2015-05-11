@@ -23,7 +23,7 @@ func (f *FrontController) getIndex(c *gin.Context) {
 			"Welcome to the Cerulean API",
 			"The blog is available at https://chromabits.com",
 		},
-		"version": "0.0.1",
+		"version": "0.0.2",
 	})
 }
 

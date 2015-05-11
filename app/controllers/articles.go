@@ -48,12 +48,14 @@ func (control *ArticlesController) getIndex(c *gin.Context) {
 	paginator := pagination.NewFromRequest(totalItems, 3, c.Request)
 	pagination := paginator.ToPagination()
 
-	db.Limit(pagination.ItemsPerPage).Offset(pagination.Offset).Order("created_at desc").Find(&articles)
+	db.Preload("Author").Limit(pagination.ItemsPerPage).Offset(pagination.Offset).Order("created_at desc").Find(&articles)
 
 	responses.SendSingleResource(c, "articles", paginator.ToPaginationWithData(articles))
 }
 
 func (control *ArticlesController) getSingle(c *gin.Context) {
+	db, _ := control.Connections.Make()
+
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 
 	if err != nil || !control.Repository.Exists(&models.Article{}, id) {
@@ -62,7 +64,7 @@ func (control *ArticlesController) getSingle(c *gin.Context) {
 	}
 
 	var article models.Article
-	err = control.Repository.Find(&article, id)
+	err = control.Repository.FirstOrFail(&article, db.Preload("Author").Where(&models.Article{ID: id}))
 
 	if err != nil {
 		responses.SendResourceNotFound(c)
@@ -78,7 +80,7 @@ func (control *ArticlesController) getSingleByTitle(c *gin.Context) {
 	titleEncoded := c.Params.ByName("encoded")
 
 	var article models.Article
-	err := control.Repository.FirstOrFail(&article, db.Where(&models.Article{TitleEncoded: titleEncoded}))
+	err := control.Repository.FirstOrFail(&article, db.Preload("Author").Where(&models.Article{TitleEncoded: titleEncoded}))
 
 	if err != nil || titleEncoded == "" {
 		responses.SendResourceNotFound(c)

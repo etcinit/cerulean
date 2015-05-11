@@ -42,7 +42,7 @@ func main() {
 	app.Usage = "Chromabits Blog Engine"
 
 	// Set version and authorship info
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 	app.Author = "Eduardo Trujillo <ed@chromabits.com>"
 
 	// Setup the default action. This action will be triggered when no
